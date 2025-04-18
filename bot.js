@@ -23,7 +23,7 @@ console.log(`Attempting to join all channels: ${channelsList}`);
 // تشغيل البوتات على جميع القنوات
 tokenList.forEach((token, index) => {
     const client = new tmi.Client({
-        options: { debug: true },
+        options: { debug: false },
         connection: {
             reconnect: true,
             secure: true
@@ -85,6 +85,10 @@ client.on('message', (channel, tags, message, self) => {
       client.say(channel, `**( ${replacedMessage} )**`);
     }
   }
+
+
+ console.log(`#${channel} <${tags['display-name']}>: ${message}`);
+
 });
 
 
