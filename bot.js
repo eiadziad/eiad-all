@@ -60,6 +60,8 @@ function isArabicText(text) {
 client.on('message', (channel, tags, message, self) => {
   if (self) return; 
 
+ if (tags.username !== 'EIADu') return;
+
   if (tags['reply-parent-msg-id'] && message.toLowerCase().includes('غير')) {
       if (tags['reply-parent-display-name'] && tags['reply-parent-msg-body']) {
           const originalSender = tags['reply-parent-display-name'];
