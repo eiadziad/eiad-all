@@ -60,31 +60,30 @@ function isArabicText(text) {
 client.on('message', (channel, tags, message, self) => {
   if (self) return; 
 
- if (tags.username !== 'EIADu') return;
-
-  if (tags['reply-parent-msg-id'] && message.toLowerCase().includes('غير')) {
+  if (tags['reply-parent-msg-id'] && message.toLowerCase().includes('بدل')) {
       if (tags['reply-parent-display-name'] && tags['reply-parent-msg-body']) {
           const originalSender = tags['reply-parent-display-name'];
           const originalMessage = tags['reply-parent-msg-body'];
 
           const replacedMessage = replaceChars(originalMessage);
 
-          client.say(channel, `**( ${replacedMessage} )**`);
+          client.say(channel, `انهو يقول ( ${replacedMessage} )`);
       }
   }
 
-  const command = "غير";
+  const command = "بدل";
   if (message.startsWith(command)) {
       const textToReplace = message.slice(command.length).trim();
       
       if (isArabicText(textToReplace)) {
-          client.say(channel, `@${tags.username} mhm`);
+          client.say(channel, `@${tags.username}, كلامك مضبوط يا حبيبنا`);
       } else {
           const replacedMessage = replaceChars(textToReplace);
-          client.say(channel, `**( ${replacedMessage} )**`);
+          client.say(channel, `انهو يقول ( ${replacedMessage} )`);
       }
   }
 });
+
 
 
     // تشغيل البوت
