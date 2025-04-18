@@ -1,15 +1,23 @@
 const tmi = require('tmi.js');
 
-const tokenList = process.env.TWITCH_TOKEN_LIST?.split(',').map(t => t.trim()) || [];
-const channelsList = process.env.TWITCH_CHANNELS_LIST?.split(',').map(c => c.trim()) || [];
-const username = process.env.TWITCH_BOT_USERNAME;
+const tokenListEnv = process.env.TWITCH_TOKEN_LIST;
+if (!tokenListEnv) {
+    throw new Error("TWITCH_TOKEN_LIST environment variable is not set.");
+}
+const tokenList = tokenListEnv.split(',').map(token => token.trim());
 
-if (!tokenList.length || !channelsList.length || !username) {
-    throw new Error("Please make sure TWITCH_TOKEN_LIST, TWITCH_CHANNELS_LIST, and TWITCH_BOT_USERNAME are set.");
+const channelsListEnv = process.env.TWITCH_CHANNELS_LIST;
+if (!channelsListEnv) {
+    throw new Error("TWITCH_CHANNELS_LIST environment variable is not set.");
+}
+const channelsList = channelsListEnv.split(',').map(channel => channel.trim());
+
+const username = process.env.TWITCH_BOT_USERNAME;
+if (!username) {
+    throw new Error("TWITCH_BOT_USERNAME environment variable is not set.");
 }
 
-// Set لتتبع الرسائل التي تمت طباعتها بالفعل
-const seenMessages = new Set();
+console.log(`Attempting to join all channels: ${channelsList}`);
 
 tokenList.forEach((token, index) => {
     const client = new tmi.Client({
@@ -20,27 +28,30 @@ tokenList.forEach((token, index) => {
         },
         identity: {
             username: username,
-            password: token
+            password: token  
         },
-        channels: channelsList
+        channels: channelsList 
     });
 
-    client.on('connected', () => {
-        console.log(`[Bot ${index + 1}] Connected and joined: ${channelsList}`);
+    client.on('connected', (address, port) => {
+        console.log(`[Bot ${index + 1}] Connected to ${address}:${port}`);
+        console.log(`[Bot ${index + 1}] Successfully joined all channels: ${channelsList}`);
     });
 
-    client.on('message', (channel, tags, message, self) => {
-        if (self || message.startsWith('!')) return;
 
-        // نستخدم معرف فريد بناءً على اسم المستخدم، اسم القناة، والرسالة
-        const msgId = `${channel}-${tags['id'] || tags['user-id']}-${message}`;
+client.on('message', (channel, tags, message, self) => {
+  if (self) return; 
+  
+  const firstWord = message.split(' ')[0];
 
-        if (!seenMessages.has(msgId)) {
-            seenMessages.add(msgId);
+  if(firstWord == '###') {
+    if(username == 'EIADu') {
+        const response = message.slice(4);
+        client.say(channel, response);
+    }};
 
+});
 
-        }
-    });
 
     client.connect();
 });
