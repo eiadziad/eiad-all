@@ -58,32 +58,34 @@ function isArabicText(text) {
 }
 
 client.on('message', (channel, tags, message, self) => {
-  if (self) return; 
+  if (self) return;
+
+  // السماح فقط للمستخدم EIADu باستخدام الأمر
+  if (tags.username !== 'eiadu') return;
 
   if (tags['reply-parent-msg-id'] && message.toLowerCase().includes('غير')) {
-      if (tags['reply-parent-display-name'] && tags['reply-parent-msg-body']) {
-          const originalSender = tags['reply-parent-display-name'];
-          const originalMessage = tags['reply-parent-msg-body'];
+    if (tags['reply-parent-display-name'] && tags['reply-parent-msg-body']) {
+      const originalSender = tags['reply-parent-display-name'];
+      const originalMessage = tags['reply-parent-msg-body'];
 
-          const replacedMessage = replaceChars(originalMessage);
+      const replacedMessage = replaceChars(originalMessage);
 
-          client.say(channel, `**( ${replacedMessage} )**`);
-      }
+      client.say(channel, `**( ${replacedMessage} )**`);
+    }
   }
 
   const command = "غير";
   if (message.startsWith(command)) {
-      const textToReplace = message.slice(command.length).trim();
-      
-      if (isArabicText(textToReplace)) {
-          client.say(channel, `@${tags.username} mhm`);
-      } else {
-          const replacedMessage = replaceChars(textToReplace);
-          client.say(channel, `**( ${replacedMessage} )**`);
-      }
+    const textToReplace = message.slice(command.length).trim();
+
+    if (isArabicText(textToReplace)) {
+      client.say(channel, `@${tags.username} mhm`);
+    } else {
+      const replacedMessage = replaceChars(textToReplace);
+      client.say(channel, `**( ${replacedMessage} )**`);
+    }
   }
 });
-
 
 
     // تشغيل البوت
