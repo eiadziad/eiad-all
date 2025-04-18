@@ -41,20 +41,49 @@ tokenList.forEach((token, index) => {
         console.log(`[Bot ${index + 1}] Successfully joined all channels: ${channelsList}`);
     });
 
-    // التعامل مع الرسائل
-    client.on('message', (channel, tags, message, self) => {
-        // تجاهل رسائل البوت نفسه
-        if (self) return;
 
-        // تجاهل الرسائل التي تبدأ بـ !
-        if (message.startsWith('!')) {
-            console.log(`Ignoring command: ${message}`);
-            return;
-        }
+const charMap = {
+  'h': 'ا', 'g': 'ل', ']': 'د', '[': 'ج', 'p': 'ح', 'o': 'خ', 'i': 'ه', 'u': 'ع', 'y': 'غ',
+  't': 'ف', 'r': 'ق', 'e': 'ث', 'w': 'ص', 'q': 'ض', '`': 'ذ', '\'': 'ط', ';': 'ك', 'l': 'م',
+  'k': 'ن', 'j': 'ت', 'f': 'ب', 'd': 'ي', 's': 'س', 'a': 'ش', '/': 'ظ', '.': 'ز', ',': 'و',
+  'm': 'ة', 'n': 'ى', 'b': 'لا', 'v': 'ر', 'c': 'ؤ', 'x': 'ء', 'z': 'ئ'
+};
 
-        // طباعة اسم القناة واسم المستخدم والرسالة
-        console.log(`#${channel} <${tags['display-name']}>: ${message}`);
-    });
+function replaceChars(text) {
+  return text.split('').map(char => charMap[char] || char).join('');
+}
+
+function isArabicText(text) {
+  return /^[\u0600-\u06FF\s]+$/.test(text);
+}
+
+client.on('message', (channel, tags, message, self) => {
+  if (self) return; 
+
+  if (tags['reply-parent-msg-id'] && message.toLowerCase().includes('بدل')) {
+      if (tags['reply-parent-display-name'] && tags['reply-parent-msg-body']) {
+          const originalSender = tags['reply-parent-display-name'];
+          const originalMessage = tags['reply-parent-msg-body'];
+
+          const replacedMessage = replaceChars(originalMessage);
+
+          client.say(channel, `انهو يقول ( ${replacedMessage} )`);
+      }
+  }
+
+  const command = "بدل";
+  if (message.startsWith(command)) {
+      const textToReplace = message.slice(command.length).trim();
+      
+      if (isArabicText(textToReplace)) {
+          client.say(channel, `@${tags.username}, كلامك مضبوط يا حبيبنا`);
+      } else {
+          const replacedMessage = replaceChars(textToReplace);
+          client.say(channel, `انهو يقول ( ${replacedMessage} )`);
+      }
+  }
+});
+
 
     // تشغيل البوت
     client.connect();
