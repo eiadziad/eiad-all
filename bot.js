@@ -45,14 +45,14 @@ client.on('message', (channel, tags, message, self) => {
   const firstWord = message.split(' ')[0];
 
     if(firstWord == 'say') {
-        if(username == 'EIADu') {
+        if(username == 'eiadu') {
             const response = message.slice(4); 
             client.say('#herodevil777', response);
     } else {
         client.say(channel,`:sob:`)
     }
 }
-
+});
 
     client.connect();
 });
