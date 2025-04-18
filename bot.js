@@ -71,7 +71,7 @@ client.on('message', (channel, tags, message, self) => {
       }
   }
 
-  const command = "بدل";
+  const command = "غير";
   if (message.startsWith(command)) {
       const textToReplace = message.slice(command.length).trim();
       
