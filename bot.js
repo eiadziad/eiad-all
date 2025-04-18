@@ -1,97 +1,49 @@
 const tmi = require('tmi.js');
 
-// قراءة القيم من متغيرات البيئة
-const tokenListEnv = process.env.TWITCH_TOKEN_LIST;
-if (!tokenListEnv) {
-    throw new Error("TWITCH_TOKEN_LIST environment variable is not set.");
-}
-const tokenList = tokenListEnv.split(',').map(token => token.trim());
-
-const channelsListEnv = process.env.TWITCH_CHANNELS_LIST;
-if (!channelsListEnv) {
-    throw new Error("TWITCH_CHANNELS_LIST environment variable is not set.");
-}
-const channelsList = channelsListEnv.split(',').map(channel => channel.trim());
-
+const tokenList = process.env.TWITCH_TOKEN_LIST?.split(',').map(t => t.trim()) || [];
+const channelsList = process.env.TWITCH_CHANNELS_LIST?.split(',').map(c => c.trim()) || [];
 const username = process.env.TWITCH_BOT_USERNAME;
-if (!username) {
-    throw new Error("TWITCH_BOT_USERNAME environment variable is not set.");
+
+if (!tokenList.length || !channelsList.length || !username) {
+    throw new Error("Please make sure TWITCH_TOKEN_LIST, TWITCH_CHANNELS_LIST, and TWITCH_BOT_USERNAME are set.");
 }
 
-console.log(`Attempting to join all channels: ${channelsList}`);
+// Set لتتبع الرسائل التي تمت طباعتها بالفعل
+const seenMessages = new Set();
 
-// تشغيل البوتات على جميع القنوات
 tokenList.forEach((token, index) => {
     const client = new tmi.Client({
-        options: { debug: false },
+        options: { debug: true },
         connection: {
             reconnect: true,
             secure: true
         },
         identity: {
-            username: username, // اسم البوت
-            password: token     // التوكن الخاص بالبوت
+            username: username,
+            password: token
         },
-        channels: channelsList // جميع القنوات
+        channels: channelsList
     });
 
-    // عندما يتصل البوت
-    client.on('connected', (address, port) => {
-        console.log(`[Bot ${index + 1}] Connected to ${address}:${port}`);
-        console.log(`[Bot ${index + 1}] Successfully joined all channels: ${channelsList}`);
+    client.on('connected', () => {
+        console.log(`[Bot ${index + 1}] Connected and joined: ${channelsList}`);
     });
 
+    client.on('message', (channel, tags, message, self) => {
+        if (self || message.startsWith('!')) return;
 
-const charMap = {
-  'h': 'ا', 'g': 'ل', ']': 'د', '[': 'ج', 'p': 'ح', 'o': 'خ', 'i': 'ه', 'u': 'ع', 'y': 'غ',
-  't': 'ف', 'r': 'ق', 'e': 'ث', 'w': 'ص', 'q': 'ض', '`': 'ذ', '\'': 'ط', ';': 'ك', 'l': 'م',
-  'k': 'ن', 'j': 'ت', 'f': 'ب', 'd': 'ي', 's': 'س', 'a': 'ش', '/': 'ظ', '.': 'ز', ',': 'و',
-  'm': 'ة', 'n': 'ى', 'b': 'لا', 'v': 'ر', 'c': 'ؤ', 'x': 'ء', 'z': 'ئ'
-};
+        // نستخدم معرف فريد بناءً على اسم المستخدم، اسم القناة، والرسالة
+        const msgId = `${channel}-${tags['id'] || tags['user-id']}-${message}`;
 
-function replaceChars(text) {
-  return text.split('').map(char => charMap[char] || char).join('');
-}
+        if (!seenMessages.has(msgId)) {
+            seenMessages.add(msgId);
 
-function isArabicText(text) {
-  return /^[\u0600-\u06FF\s]+$/.test(text);
-}
+            console.log(`#${channel} <${tags['display-name']}>: ${message}`);
 
-client.on('message', (channel, tags, message, self) => {
-  if (self) return;
+            // تنظيف الرسائل القديمة بعد 10 ثواني (حتى لا يتضخم الذاكرة)
+            setTimeout(() => seenMessages.delete(msgId), 10000);
+        }
+    });
 
-  // السماح فقط للمستخدم EIADu باستخدام الأمر
-  if (tags.username !== 'eiadu') return;
-
-  if (tags['reply-parent-msg-id'] && message.toLowerCase().includes('غير')) {
-    if (tags['reply-parent-display-name'] && tags['reply-parent-msg-body']) {
-      const originalSender = tags['reply-parent-display-name'];
-      const originalMessage = tags['reply-parent-msg-body'];
-
-      const replacedMessage = replaceChars(originalMessage);
-
-      client.say(channel, `**( ${replacedMessage} )**`);
-    }
-  }
-
-  const command = "غير";
-  if (message.startsWith(command)) {
-    const textToReplace = message.slice(command.length).trim();
-
-    if (isArabicText(textToReplace)) {
-      client.say(channel, `@${tags.username} mhm`);
-    } else {
-      const replacedMessage = replaceChars(textToReplace);
-      client.say(channel, `**( ${replacedMessage} )**`);
-    }
-  }
-
-
- console.log(`#${channel} <${tags['display-name']}>: ${message}`);
-
-});
-
-
-    // تشغيل البوت
     client.connect();
 });
