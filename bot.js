@@ -67,7 +67,7 @@ client.on('message', (channel, tags, message, self) => {
 
           const replacedMessage = replaceChars(originalMessage);
 
-          client.say(channel, `انهو يقول ( ${replacedMessage} )`);
+          client.say(channel, `**( ${replacedMessage} )**`);
       }
   }
 
@@ -76,10 +76,10 @@ client.on('message', (channel, tags, message, self) => {
       const textToReplace = message.slice(command.length).trim();
       
       if (isArabicText(textToReplace)) {
-          client.say(channel, `@${tags.username}, كلامك مضبوط يا حبيبنا`);
+          client.say(channel, `@${tags.username} mhm`);
       } else {
           const replacedMessage = replaceChars(textToReplace);
-          client.say(channel, `انهو يقول ( ${replacedMessage} )`);
+          client.say(channel, `**( ${replacedMessage} )**`);
       }
   }
 });
