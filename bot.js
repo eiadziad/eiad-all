@@ -47,7 +47,7 @@ client.on('message', (channel, tags, message, self) => {
     if(firstWord == 'say') {
         if(username == 'eiadu') {
             const response = message.slice(4); 
-            client.say('#herodevil777', response);
+            client.say(channel, response);
     } else {
         client.say(channel,`:sob:`)
     }
