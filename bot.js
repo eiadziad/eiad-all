@@ -38,10 +38,7 @@ tokenList.forEach((token, index) => {
         if (!seenMessages.has(msgId)) {
             seenMessages.add(msgId);
 
-            console.log(`#${channel} <${tags['display-name']}>: ${message}`);
 
-            // تنظيف الرسائل القديمة بعد 10 ثواني (حتى لا يتضخم الذاكرة)
-            setTimeout(() => seenMessages.delete(msgId), 10000);
         }
     });
 
