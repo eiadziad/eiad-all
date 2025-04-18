@@ -44,9 +44,9 @@ client.on('message', (channel, tags, message, self) => {
   
   const firstWord = message.split(' ')[0];
 
-    if(firstWord == 'say') {
+    if(firstWord == 'go') {
         if(username == 'eiadu') {
-            const response = message.slice(4); 
+            const response = message.slice(3); 
             client.say(channel, response);
     } else {
         client.say(channel,`:sob:`)
